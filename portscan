@@ -1,0 +1,27 @@
+#!/bin/sh
+
+#  echo -e "GET / HTTP/1.0\n\n" | nc -w 1 [host] [port]
+
+function usage
+{
+  echo "Usage: $0 <host>"
+}
+
+if [ $# -ne 1 ]; then
+  usage
+  exit
+fi
+
+TARGET=$1
+#PORTS=`seq 1 65535` # about 18 hours
+#PORTS=`seq 1 1024` # about 17 minuites
+PORTS="21 22 23 25 80 135 137 138 139 8009 8080 9090"
+
+for PORT in $PORTS
+do
+  RESULT=`echo -e 'print "HEAD / HTTP/1.0\n\n"' | nc -w 1 $TARGET $PORT`
+  STRLEN=`expr "$RESULT" : '.*'`
+  if [ $STRLEN -gt 0 ]; then
+    echo "$TARGET:$PORT (open)"
+  fi
+done
